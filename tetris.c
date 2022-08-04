@@ -159,10 +159,10 @@ int move_down(Struct* temp, Struct* current)
 	}
 }
 
-int main() {
+void init_game()
+{
 	srand(time(0));
 	final = 0;
-	initscr();
 	gettimeofday(&before_now, NULL);
 	set_timeout(1);
 	Struct new_shape = FunctionCS(StructsArray[rand()%7]);
@@ -173,32 +173,37 @@ int main() {
 	if(!FunctionCP(current)){
 		GameOn = F;
 	}
+}
+
+void game_loop(Struct* current)
+{
+	initscr();
 	FunctionPT();
 	while(GameOn){
 		int c;
 		if ((c = getch()) != ERR) {
-			Struct temp = FunctionCS(current);
+			Struct temp = FunctionCS(*current);
 			switch(c){
 				case 's':
 				{
-					int count = move_down(&temp, &current);
+					int count = move_down(&temp, current);
 					final += 100*count;
 					break;
 				}
 				case 'd':
 					temp.col++;
 					if(FunctionCP(temp))
-						current.col++;
+						current->col++;
 					break;
 				case 'a':
 					temp.col--;
 					if(FunctionCP(temp))
-						current.col--;
+						current->col--;
 					break;
 				case 'w':
 					FunctionRS(temp);
 					if(FunctionCP(temp))
-						FunctionRS(current);
+						FunctionRS(*current);
 					break;
 			}
 			FunctionDS(temp);
@@ -206,17 +211,21 @@ int main() {
 		}
 		gettimeofday(&now, NULL);
 		if (hasToUpdate()) {
-			Struct temp = FunctionCS(current);
+			Struct temp = FunctionCS(*current);
 			{
-				move_down(&temp, &current);
+				move_down(&temp, current);
 			}
 			FunctionDS(temp);
 			FunctionPT();
 			gettimeofday(&before_now, NULL);
 		}
 	}
-	FunctionDS(current);
 	endwin();
+}
+
+void finish_game()
+{
+	FunctionDS(current);
 	int i, j;
 	for(i = 0; i < R ;i++){
 		for(j = 0; j < C ; j++){
@@ -226,5 +235,11 @@ int main() {
 	}
 	printf("\nGame over!\n");
 	printf("\nScore: %d\n", final);
+}
+
+int main() {
+	init_game();
+	game_loop(&current);
+	finish_game();
 	return 0;
 }
