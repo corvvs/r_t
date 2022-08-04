@@ -8,6 +8,10 @@
 
 #define R 20
 #define C 15
+#define KEY_QUICKEN		's'
+#define KEY_MOVE_RIGHT	'd'
+#define KEY_MOVE_LEFT	'a'
+#define KEY_ROTATE		'w'
 
 typedef char t_board[R][C];
 t_board GameBoard = {0};
@@ -208,23 +212,23 @@ void game_loop(t_board board, t_shape* current)
 			t_shape temp = duplicate_shape(current);
 			switch (c)
 			{
-				case 's':
+				case KEY_QUICKEN:
 				{
 					int removed_lines = move_down_shape(board, &temp, current);
 					final += 100 * removed_lines;
 					break;
 				}
-				case 'd':
+				case KEY_MOVE_RIGHT:
 					temp.col++;
 					if (check_placed(board, &temp))
 						current->col++;
 					break;
-				case 'a':
+				case KEY_MOVE_LEFT:
 					temp.col--;
 					if (check_placed(board, &temp))
 						current->col--;
 					break;
-				case 'w':
+				case KEY_ROTATE:
 					rotate_shape(&temp);
 					if (check_placed(board, &temp))
 						rotate_shape(current);
