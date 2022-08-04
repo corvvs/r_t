@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
@@ -40,10 +41,7 @@ t_shape duplicate_shape(const t_shape *shape)
 	for (int i = 0; i < new_shape.width; i++)
 	{
 		new_shape.array[i] = (char*)malloc(new_shape.width * sizeof(char));
-		for (int j = 0; j < new_shape.width; j++)
-		{
-			new_shape.array[i][j] = copyshape[i][j];
-		}
+		memcpy(&new_shape.array[i][0], &copyshape[i][0], new_shape.width * sizeof(char));
 	}
 	return new_shape;
 }
@@ -92,17 +90,21 @@ void rotate_shape(t_shape *shape)
 	destroy_shape(&temp);
 }
 
+void place_shape_to_board(t_board board, const t_shape* shape)
+{
+	for (int i = 0; i < shape->width; i++)
+	{
+		for (int j = 0; j < shape->width; j++)
+		{
+			board[shape->row + i][shape->col + j] |= shape->array[i][j];
+		}
+	}
+}
+
 void print_game(t_board board)
 {
 	t_board Buffer = {0};
-	for (int i = 0; i < current.width; i++)
-	{
-		for (int j = 0; j < current.width; j++)
-		{
-			if (current.array[i][j])
-				Buffer[current.row + i][current.col + j] = current.array[i][j];
-		}
-	}
+	place_shape_to_board(Buffer, &current);
 	clear();
 	for (int i = 0; i < C - 9; i++)
 		printw(" ");
@@ -129,17 +131,6 @@ void set_timeout(int time)
 	timeout(time);
 }
 
-void place_shape_to_board(t_board board, const t_shape* shape)
-{
-	for (int i = 0; i < shape->width; i++)
-	{
-		for (int j = 0; j < shape->width; j++)
-		{
-			board[shape->row + i][shape->col + j] |= shape->array[i][j];
-		}
-	}
-}
-
 int remove_filled_lines(t_board board)
 {
 	int count = 0;
@@ -153,16 +144,26 @@ int remove_filled_lines(t_board board)
 		if (sum == C)
 		{
 			count++;
-			int k, l;
+			int k;
 			for (k = n; k >= 1; k--)
-				for (l = 0; l < C; l++)
-					board[k][l] = board[k - 1][l];
-			for (l = 0; l < C; l++)
-				board[k][l] = 0;
+				memcpy(&board[k][0], &board[k - 1][0], sizeof(char) * C);
+			memset(&board[k][0], 0, sizeof(char) * C);
 			timer -= decrease--;
 		}
 	}
 	return count;
+}
+
+void drop_new_shape(t_board board, t_shape *current)
+{
+	t_shape new_shape = duplicate_shape(&Tetriminoes[rand() % 7]);
+	new_shape.col = rand() % (C - new_shape.width + 1);
+	new_shape.row = 0;
+	destroy_shape(current);
+	*current = new_shape;
+	if (!check_placed(board, current)) {
+		GameOn = F;
+	}
 }
 
 int move_down_shape(t_board board, t_shape* temp, t_shape* current)
@@ -177,14 +178,7 @@ int move_down_shape(t_board board, t_shape* temp, t_shape* current)
 	{
 		place_shape_to_board(board, current);
 		int removed_lines = remove_filled_lines(board);
-		t_shape new_shape = duplicate_shape(&Tetriminoes[rand() % 7]);
-		new_shape.col = rand() % (C - new_shape.width + 1);
-		new_shape.row = 0;
-		destroy_shape(current);
-		*current = new_shape;
-		if (!check_placed(board, current)) {
-			GameOn = F;
-		}
+		drop_new_shape(board, current);
 		return removed_lines;
 	}
 }
