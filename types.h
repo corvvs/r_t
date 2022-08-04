@@ -16,6 +16,9 @@
 #define KEY_MOVE_LEFT	'a'
 #define KEY_ROTATE		'w'
 
+
+typedef struct timeval t_timeval;
+
 typedef char t_board[R][C];
 
 typedef struct s_shape {
@@ -30,6 +33,7 @@ typedef struct s_game
 	bool		on;
 	int			final;
 	int			decrease;
+	t_timeval	updated_at;
 }	t_game;
 
 #endif

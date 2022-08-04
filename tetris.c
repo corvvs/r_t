@@ -85,16 +85,21 @@ void	print_game(t_game *game, t_shape *current)
 	display_to_window(buffer, game);
 }
 
-suseconds_t	usec(struct timeval* t)
+suseconds_t	usec(t_timeval* t)
 {
 	return (suseconds_t)(t->tv_sec * 1000000 + t->tv_usec);
 }
 
-struct timeval updated_at, now;
-
-int		hasToUpdate(t_game *game)
+suseconds_t	diff_time(t_timeval *t0, t_timeval *t1)
 {
-	return (usec(&now) - usec(&updated_at)) > game->timer;
+	return (usec(t1) - usec(t0));
+}
+
+int		has_to_update(t_game *game)
+{
+	t_timeval	now;
+	gettimeofday(&now, NULL);
+	return (diff_time(&game->updated_at, &now) > game->timer);
 }
 
 int		remove_filled_lines(t_game *game)
@@ -161,7 +166,7 @@ void	init_game(t_game *game, t_shape* current)
 	*current = (t_shape){0};
 
 	srand(time(0));
-	gettimeofday(&updated_at, NULL);
+	gettimeofday(&game->updated_at, NULL);
 	drop_new_shape(game, current);
 	create_window();
 }
@@ -202,8 +207,7 @@ void	game_loop(t_game *game, t_shape* current)
 			destroy_shape(&temp);
 			print_game(game, current);
 		}
-		gettimeofday(&now, NULL);
-		if (hasToUpdate(game))
+		if  (has_to_update(game))
 		{
 			t_shape temp = duplicate_shape(current);
 			{
@@ -211,15 +215,13 @@ void	game_loop(t_game *game, t_shape* current)
 			}
 			destroy_shape(&temp);
 			print_game(game, current);
-			gettimeofday(&updated_at, NULL);
+			gettimeofday(&game->updated_at, NULL);
 		}
 	}
 }
 
-void	finish_game(t_game *game, t_shape* current)
+void	display_result(t_game *game)
 {
-	destroy_window();
-	destroy_shape(current);
 	for (int i = 0; i < R; i++)
 	{
 		for (int j = 0; j < C; j++)
@@ -230,6 +232,13 @@ void	finish_game(t_game *game, t_shape* current)
 	}
 	printf("\nGame over!\n");
 	printf("\nScore: %d\n", game->final);
+}
+
+void	finish_game(t_game *game, t_shape* current)
+{
+	destroy_window();
+	destroy_shape(current);
+	display_result(game);
 }
 
 int		main()
