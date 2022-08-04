@@ -114,6 +114,39 @@ void set_timeout(int time) {
 	timeout(time);
 }
 
+void copy_shape_to_board(const t_shape* shape)
+{
+	int i, j;
+	for(i = 0; i < shape->width ;i++){
+		for(j = 0; j < shape->width ; j++){
+			if(shape->array[i][j])
+				Table[shape->row+i][shape->col+j] = shape->array[i][j];
+		}
+	}
+}
+
+int remove_filled_lines()
+{
+	int n, m, count = 0;
+	for(n=0;n<R;n++){
+		int sum = 0;
+		for(m=0;m< C;m++) {
+			sum+=Table[n][m];
+		}
+		if(sum==C){
+			count++;
+			int l, k;
+			for(k = n;k >=1;k--)
+				for(l=0;l<C;l++)
+					Table[k][l]=Table[k-1][l];
+			for(l=0;l<C;l++)
+				Table[k][l]=0;
+			timer-=decrease--;
+		}
+	}
+	return count;
+}
+
 int move_down_shape(t_shape* temp, t_shape* current)
 {
 	temp->row++;  //move down
@@ -123,30 +156,8 @@ int move_down_shape(t_shape* temp, t_shape* current)
 		return 0;
 	}
 	else {
-		int i, j;
-		for(i = 0; i < current->width ;i++){
-			for(j = 0; j < current->width ; j++){
-				if(current->array[i][j])
-					Table[current->row+i][current->col+j] = current->array[i][j];
-			}
-		}
-		int n, m, sum, count=0;
-		for(n=0;n<R;n++){
-			sum = 0;
-			for(m=0;m< C;m++) {
-				sum+=Table[n][m];
-			}
-			if(sum==C){
-				count++;
-				int l, k;
-				for(k = n;k >=1;k--)
-					for(l=0;l<C;l++)
-						Table[k][l]=Table[k-1][l];
-				for(l=0;l<C;l++)
-					Table[k][l]=0;
-				timer-=decrease--;
-			}
-		}
+		copy_shape_to_board(current);
+		int removed_lines = remove_filled_lines();
 		t_shape new_shape = copy_shape(&Tetriminoes[rand()%7]);
 		new_shape.col = rand()%(C-new_shape.width+1);
 		new_shape.row = 0;
@@ -155,7 +166,7 @@ int move_down_shape(t_shape* temp, t_shape* current)
 		if(!check_placed(current)){
 			GameOn = F;
 		}
-		return count;
+		return removed_lines;
 	}
 }
 
@@ -186,8 +197,8 @@ void game_loop(t_shape* current)
 			switch(c){
 				case 's':
 				{
-					int count = move_down_shape(&temp, current);
-					final += 100*count;
+					int removed_lines = move_down_shape(&temp, current);
+					final += 100 * removed_lines;
 					break;
 				}
 				case 'd':
