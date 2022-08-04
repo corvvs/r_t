@@ -128,7 +128,7 @@ void set_timeout(int time)
 	timeout(time);
 }
 
-void copy_shape_to_board(const t_shape* shape)
+void place_shape_to_board(const t_shape* shape)
 {
 	for (int i = 0; i < shape->width; i++)
 	{
@@ -175,7 +175,7 @@ int move_down_shape(t_shape* temp, t_shape* current)
 	}
 	else
 	{
-		copy_shape_to_board(current);
+		place_shape_to_board(current);
 		int removed_lines = remove_filled_lines();
 		t_shape new_shape = duplicate_shape(&Tetriminoes[rand() % 7]);
 		new_shape.col = rand() % (C - new_shape.width + 1);
