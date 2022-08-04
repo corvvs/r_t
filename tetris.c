@@ -16,8 +16,8 @@ suseconds_t timer = 400000;
 int decrease = 1000;
 
 typedef struct {
-    char **array;
-    int width, row, col;
+	char **array;
+	int width, row, col;
 } Struct;
 Struct current;
 
@@ -35,22 +35,22 @@ Struct FunctionCS(Struct shape){
 	Struct new_shape = shape;
 	char **copyshape = shape.array;
 	new_shape.array = (char**)malloc(new_shape.width*sizeof(char*));
-    int i, j;
-    for(i = 0; i < new_shape.width; i++){
+	int i, j;
+	for(i = 0; i < new_shape.width; i++){
 		new_shape.array[i] = (char*)malloc(new_shape.width*sizeof(char));
 		for(j=0; j < new_shape.width; j++) {
 			new_shape.array[i][j] = copyshape[i][j];
 		}
-    }
-    return new_shape;
+	}
+	return new_shape;
 }
 
 void FunctionDS(Struct shape){
-    int i;
-    for(i = 0; i < shape.width; i++){
+	int i;
+	for(i = 0; i < shape.width; i++){
 		free(shape.array[i]);
-    }
-    free(shape.array);
+	}
+	free(shape.array);
 }
 
 int FunctionCP(Struct shape){
@@ -114,66 +114,77 @@ void set_timeout(int time) {
 	timeout(1);
 }
 
+int move_down(Struct* temp, Struct* current)
+{
+	temp->row++;  //move down
+	if(FunctionCP(*temp))
+	{
+		current->row++;
+		return 0;
+	}
+	else {
+		int i, j;
+		for(i = 0; i < current->width ;i++){
+			for(j = 0; j < current->width ; j++){
+				if(current->array[i][j])
+					Table[current->row+i][current->col+j] = current->array[i][j];
+			}
+		}
+		int n, m, sum, count=0;
+		for(n=0;n<R;n++){
+			sum = 0;
+			for(m=0;m< C;m++) {
+				sum+=Table[n][m];
+			}
+			if(sum==C){
+				count++;
+				int l, k;
+				for(k = n;k >=1;k--)
+					for(l=0;l<C;l++)
+						Table[k][l]=Table[k-1][l];
+				for(l=0;l<C;l++)
+					Table[k][l]=0;
+				timer-=decrease--;
+			}
+		}
+		Struct new_shape = FunctionCS(StructsArray[rand()%7]);
+		new_shape.col = rand()%(C-new_shape.width+1);
+		new_shape.row = 0;
+		FunctionDS(*current);
+		*current = new_shape;
+		if(!FunctionCP(*current)){
+			GameOn = F;
+		}
+		return count;
+	}
+}
+
 int main() {
-    srand(time(0));
-    final = 0;
-    int c;
-    initscr();
+	srand(time(0));
+	final = 0;
+	initscr();
 	gettimeofday(&before_now, NULL);
 	set_timeout(1);
 	Struct new_shape = FunctionCS(StructsArray[rand()%7]);
-    new_shape.col = rand()%(C-new_shape.width+1);
-    new_shape.row = 0;
-    FunctionDS(current);
+	new_shape.col = rand()%(C-new_shape.width+1);
+	new_shape.row = 0;
+	FunctionDS(current);
 	current = new_shape;
 	if(!FunctionCP(current)){
 		GameOn = F;
 	}
-    FunctionPT();
+	FunctionPT();
 	while(GameOn){
+		int c;
 		if ((c = getch()) != ERR) {
 			Struct temp = FunctionCS(current);
 			switch(c){
 				case 's':
-					temp.row++;  //move down
-					if(FunctionCP(temp))
-						current.row++;
-					else {
-						int i, j;
-						for(i = 0; i < current.width ;i++){
-							for(j = 0; j < current.width ; j++){
-								if(current.array[i][j])
-									Table[current.row+i][current.col+j] = current.array[i][j];
-							}
-						}
-						int n, m, sum, count=0;
-						for(n=0;n<R;n++){
-							sum = 0;
-							for(m=0;m< C;m++) {
-								sum+=Table[n][m];
-							}
-							if(sum==C){
-								count++;
-								int l, k;
-								for(k = n;k >=1;k--)
-									for(l=0;l<C;l++)
-										Table[k][l]=Table[k-1][l];
-								for(l=0;l<C;l++)
-									Table[k][l]=0;
-								timer-=decrease--;
-							}
-						}
-						final += 100*count;
-						Struct new_shape = FunctionCS(StructsArray[rand()%7]);
-						new_shape.col = rand()%(C-new_shape.width+1);
-						new_shape.row = 0;
-						FunctionDS(current);
-						current = new_shape;
-						if(!FunctionCP(current)){
-							GameOn = F;
-						}
-					}
+				{
+					int count = move_down(&temp, &current);
+					final += 100*count;
 					break;
+				}
 				case 'd':
 					temp.col++;
 					if(FunctionCP(temp))
@@ -196,61 +207,8 @@ int main() {
 		gettimeofday(&now, NULL);
 		if (hasToUpdate()) {
 			Struct temp = FunctionCS(current);
-			switch('s'){
-				case 's':
-					temp.row++;
-					if(FunctionCP(temp))
-						current.row++;
-					else {
-						int i, j;
-						for(i = 0; i < current.width ;i++){
-							for(j = 0; j < current.width ; j++){
-								if(current.array[i][j])
-									Table[current.row+i][current.col+j] = current.array[i][j];
-							}
-						}
-						int n, m, sum, count=0;
-						for(n=0;n<R;n++){
-							sum = 0;
-							for(m=0;m< C;m++) {
-								sum+=Table[n][m];
-							}
-							if(sum==C){
-								count++;
-								int l, k;
-								for(k = n;k >=1;k--)
-									for(l=0;l<C;l++)
-										Table[k][l]=Table[k-1][l];
-								for(l=0;l<C;l++)
-									Table[k][l]=0;
-								timer-=decrease--;
-							}
-						}
-						Struct new_shape = FunctionCS(StructsArray[rand()%7]);
-						new_shape.col = rand()%(C-new_shape.width+1);
-						new_shape.row = 0;
-						FunctionDS(current);
-						current = new_shape;
-						if(!FunctionCP(current)){
-							GameOn = F;
-						}
-					}
-					break;
-				case 'd':
-					temp.col++;
-					if(FunctionCP(temp))
-						current.col++;
-					break;
-				case 'a':
-					temp.col--;
-					if(FunctionCP(temp))
-						current.col--;
-					break;
-				case 'w':
-					FunctionRS(temp);
-					if(FunctionCP(temp))
-						FunctionRS(current);
-					break;
+			{
+				move_down(&temp, &current);
 			}
 			FunctionDS(temp);
 			FunctionPT();
@@ -268,5 +226,5 @@ int main() {
 	}
 	printf("\nGame over!\n");
 	printf("\nScore: %d\n", final);
-    return 0;
+	return 0;
 }
