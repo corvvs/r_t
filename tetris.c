@@ -1,19 +1,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <time.h>
 #include <sys/time.h>
 #include <ncurses.h>
 
 #define R 20
 #define C 15
-#define T 1
-#define F 0
 
 typedef char t_board[R][C];
 t_board GameBoard = {0};
 int final = 0;
-char GameOn = T;
+bool GameOn = true;
 suseconds_t timer = 400000;
 int decrease = 1000;
 
@@ -55,7 +54,7 @@ void destroy_shape(t_shape *shape)
 	free(shape->array);
 }
 
-int check_placed(t_board board, const t_shape *shape)
+bool check_placed(t_board board, const t_shape *shape)
 {
 	char **array = shape->array;
 	for (int i = 0; i < shape->width; i++)
@@ -66,14 +65,14 @@ int check_placed(t_board board, const t_shape *shape)
 			{
 				// 
 				if (array[i][j])
-					return F;
+					return false;
 				
 			}
 			else if (board[shape->row + i][shape->col + j] && array[i][j])
-				return F;
+				return false;
 		}
 	}
-	return T;
+	return true;
 }
 
 void rotate_shape(t_shape *shape)
@@ -120,10 +119,15 @@ void print_game(t_board board)
 	printw("\nScore: %d\n", final);
 }
 
-struct timeval before_now, now;
+suseconds_t usec(struct timeval* t)
+{
+	return (suseconds_t)(t->tv_sec * 1000000 + t->tv_usec);
+}
+
+struct timeval updated_at, now;
 int hasToUpdate()
 {
-	return ((suseconds_t)(now.tv_sec * 1000000 + now.tv_usec) - ((suseconds_t)before_now.tv_sec * 1000000 + before_now.tv_usec)) > timer;
+	return (usec(&now) - usec(&updated_at)) > timer;
 }
 
 void set_timeout(int time)
@@ -162,7 +166,7 @@ void drop_new_shape(t_board board, t_shape *current)
 	destroy_shape(current);
 	*current = new_shape;
 	if (!check_placed(board, current)) {
-		GameOn = F;
+		GameOn = false;
 	}
 }
 
@@ -183,22 +187,14 @@ int move_down_shape(t_board board, t_shape* temp, t_shape* current)
 	}
 }
 
-void init_game(t_board board)
+void init_game(t_board board, t_shape* current)
 {
 	srand(time(0));
 	final = 0;
 	initscr();
-	gettimeofday(&before_now, NULL);
+	gettimeofday(&updated_at, NULL);
 	set_timeout(1);
-	t_shape new_shape = duplicate_shape(&Tetriminoes[rand() % 7]);
-	new_shape.col = rand() % (C - new_shape.width + 1);
-	new_shape.row = 0;
-	destroy_shape(&current);
-	current = new_shape;
-	if (!check_placed(board, &current))
-	{
-		GameOn = F;
-	}
+	drop_new_shape(board, current);
 }
 
 void game_loop(t_board board, t_shape* current)
@@ -246,15 +242,15 @@ void game_loop(t_board board, t_shape* current)
 			}
 			destroy_shape(&temp);
 			print_game(board);
-			gettimeofday(&before_now, NULL);
+			gettimeofday(&updated_at, NULL);
 		}
 	}
 }
 
-void finish_game(t_board board)
+void finish_game(t_board board, t_shape* current)
 {
 	endwin();
-	destroy_shape(&current);
+	destroy_shape(current);
 	for (int i = 0; i < R; i++)
 	{
 		for (int j = 0; j < C; j++)
@@ -269,8 +265,8 @@ void finish_game(t_board board)
 
 int main()
 {
-	init_game(GameBoard);
+	init_game(GameBoard, &current);
 	game_loop(GameBoard, &current);
-	finish_game(GameBoard);
+	finish_game(GameBoard, &current);
 	return 0;
 }
