@@ -56,7 +56,7 @@ void destroy_shape(t_shape *shape)
 	free(shape->array);
 }
 
-int check_placed(const t_shape *shape)
+int check_placed(char board[R][C], const t_shape *shape)
 {
 	char **array = shape->array;
 	for (int i = 0; i < shape->width; i++)
@@ -70,7 +70,7 @@ int check_placed(const t_shape *shape)
 					return F;
 				
 			}
-			else if (GameBoard[shape->row + i][shape->col + j] && array[i][j])
+			else if (board[shape->row + i][shape->col + j] && array[i][j])
 				return F;
 		}
 	}
@@ -91,7 +91,7 @@ void rotate_shape(t_shape *shape)
 	destroy_shape(&temp);
 }
 
-void print_game()
+void print_game(char board[R][C])
 {
 	char Buffer[R][C] = {0};
 	for (int i = 0; i < current.width; i++)
@@ -110,7 +110,7 @@ void print_game()
 	{
 		for (int j = 0; j < C; j++)
 		{
-			printw("%c ", (GameBoard[i][j] + Buffer[i][j])? '#': '.');
+			printw("%c ", (board[i][j] + Buffer[i][j])? '#': '.');
 		}
 		printw("\n");
 	}
@@ -128,19 +128,18 @@ void set_timeout(int time)
 	timeout(time);
 }
 
-void place_shape_to_board(const t_shape* shape)
+void place_shape_to_board(char board[R][C], const t_shape* shape)
 {
 	for (int i = 0; i < shape->width; i++)
 	{
 		for (int j = 0; j < shape->width; j++)
 		{
-			if (shape->array[i][j])
-				GameBoard[shape->row + i][shape->col + j] = shape->array[i][j];
+			board[shape->row + i][shape->col + j] |= shape->array[i][j];
 		}
 	}
 }
 
-int remove_filled_lines()
+int remove_filled_lines(char board[R][C])
 {
 	int count = 0;
 	for (int n = 0; n < R; n++)
@@ -148,7 +147,7 @@ int remove_filled_lines()
 		int sum = 0;
 		for (int m = 0; m < C; m++)
 		{
-			sum += GameBoard[n][m];
+			sum += board[n][m];
 		}
 		if (sum == C)
 		{
@@ -156,40 +155,40 @@ int remove_filled_lines()
 			int k, l;
 			for (k = n; k >= 1; k--)
 				for (l = 0; l < C; l++)
-					GameBoard[k][l] = GameBoard[k - 1][l];
+					board[k][l] = board[k - 1][l];
 			for (l = 0; l < C; l++)
-				GameBoard[k][l] = 0;
+				board[k][l] = 0;
 			timer -= decrease--;
 		}
 	}
 	return count;
 }
 
-int move_down_shape(t_shape* temp, t_shape* current)
+int move_down_shape(char board[R][C], t_shape* temp, t_shape* current)
 {
 	temp->row++;  //move down
-	if (check_placed(temp))
+	if (check_placed(board, temp))
 	{
 		current->row++;
 		return 0;
 	}
 	else
 	{
-		place_shape_to_board(current);
-		int removed_lines = remove_filled_lines();
+		place_shape_to_board(board, current);
+		int removed_lines = remove_filled_lines(board);
 		t_shape new_shape = duplicate_shape(&Tetriminoes[rand() % 7]);
 		new_shape.col = rand() % (C - new_shape.width + 1);
 		new_shape.row = 0;
 		destroy_shape(current);
 		*current = new_shape;
-		if (!check_placed(current)) {
+		if (!check_placed(board, current)) {
 			GameOn = F;
 		}
 		return removed_lines;
 	}
 }
 
-void init_game()
+void init_game(char board[R][C])
 {
 	srand(time(0));
 	final = 0;
@@ -201,15 +200,15 @@ void init_game()
 	new_shape.row = 0;
 	destroy_shape(&current);
 	current = new_shape;
-	if (!check_placed(&current))
+	if (!check_placed(board, &current))
 	{
 		GameOn = F;
 	}
 }
 
-void game_loop(t_shape* current)
+void game_loop(char board[R][C], t_shape* current)
 {
-	print_game();
+	print_game(board);
 	while (GameOn)
 	{
 		int c;
@@ -220,44 +219,44 @@ void game_loop(t_shape* current)
 			{
 				case 's':
 				{
-					int removed_lines = move_down_shape(&temp, current);
+					int removed_lines = move_down_shape(board, &temp, current);
 					final += 100 * removed_lines;
 					break;
 				}
 				case 'd':
 					temp.col++;
-					if (check_placed(&temp))
+					if (check_placed(board, &temp))
 						current->col++;
 					break;
 				case 'a':
 					temp.col--;
-					if (check_placed(&temp))
+					if (check_placed(board, &temp))
 						current->col--;
 					break;
 				case 'w':
 					rotate_shape(&temp);
-					if (check_placed(&temp))
+					if (check_placed(board, &temp))
 						rotate_shape(current);
 					break;
 			}
 			destroy_shape(&temp);
-			print_game();
+			print_game(board);
 		}
 		gettimeofday(&now, NULL);
 		if (hasToUpdate())
 		{
 			t_shape temp = duplicate_shape(current);
 			{
-				move_down_shape(&temp, current);
+				move_down_shape(board, &temp, current);
 			}
 			destroy_shape(&temp);
-			print_game();
+			print_game(board);
 			gettimeofday(&before_now, NULL);
 		}
 	}
 }
 
-void finish_game()
+void finish_game(char board[R][C])
 {
 	endwin();
 	destroy_shape(&current);
@@ -265,7 +264,7 @@ void finish_game()
 	{
 		for (int j = 0; j < C; j++)
 		{
-			printf("%c ", GameBoard[i][j] ? '#': '.');
+			printf("%c ", board[i][j] ? '#': '.');
 		}
 		printf("\n");
 	}
@@ -275,8 +274,8 @@ void finish_game()
 
 int main()
 {
-	init_game();
-	game_loop(&current);
-	finish_game();
+	init_game(GameBoard);
+	game_loop(GameBoard, &current);
+	finish_game(GameBoard);
 	return 0;
 }
