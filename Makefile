@@ -1,7 +1,7 @@
 NAME	:=	tetris
 CFLAGS	:=
 
-SRCS	:=	tetris.c
+SRCS	:=	tetris.c display.c
 OBJS	:=	$(SRCS:.c=.o)
 
 RM		:= 	rm -rf

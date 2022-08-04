@@ -80,21 +80,9 @@ void	place_shape_to_board(t_board board, const t_shape* shape)
 
 void	print_game(t_game *game, t_shape *current)
 {
-	t_board Buffer = {0};
-	place_shape_to_board(Buffer, current);
-	clear();
-	for (int i = 0; i < C - 9; i++)
-		printw(" ");
-	printw("42 Tetris\n");
-	for (int i = 0; i < R; i++)
-	{
-		for (int j = 0; j < C; j++)
-		{
-			printw("%c ", (game->board[i][j] + Buffer[i][j])? '#': '.');
-		}
-		printw("\n");
-	}
-	printw("\nScore: %d\n", game->final);
+	t_board buffer = {0};
+	place_shape_to_board(buffer, current);
+	display_to_window(buffer, game);
 }
 
 suseconds_t	usec(struct timeval* t)
@@ -107,11 +95,6 @@ struct timeval updated_at, now;
 int		hasToUpdate(t_game *game)
 {
 	return (usec(&now) - usec(&updated_at)) > game->timer;
-}
-
-void	set_timeout(int time)
-{
-	timeout(time);
 }
 
 int		remove_filled_lines(t_game *game)
@@ -178,10 +161,9 @@ void	init_game(t_game *game, t_shape* current)
 	*current = (t_shape){0};
 
 	srand(time(0));
-	initscr();
 	gettimeofday(&updated_at, NULL);
-	set_timeout(1);
 	drop_new_shape(game, current);
+	create_window();
 }
 
 void	game_loop(t_game *game, t_shape* current)
@@ -236,7 +218,7 @@ void	game_loop(t_game *game, t_shape* current)
 
 void	finish_game(t_game *game, t_shape* current)
 {
-	endwin();
+	destroy_window();
 	destroy_shape(current);
 	for (int i = 0; i < R; i++)
 	{
