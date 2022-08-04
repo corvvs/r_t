@@ -10,20 +10,20 @@ const t_shape Tetriminoes[7] = {
 	{(char *[]){(char []){0,0,0,0}, (char []){1,1,1,1}, (char []){0,0,0,0}, (char []){0,0,0,0}}, 4}
 };
 
-t_shape duplicate_shape(const t_shape *shape)
+t_shape	duplicate_shape(const t_shape *shape)
 {
 	t_shape	new_shape = *shape;
 	char	**copyshape = shape->array;
-	new_shape.array = (char**)malloc(new_shape.width * sizeof(char*));
+	new_shape.array = (char **)malloc(new_shape.width * sizeof(char*));
 	for (int i = 0; i < new_shape.width; i++)
 	{
-		new_shape.array[i] = (char*)malloc(new_shape.width * sizeof(char));
+		new_shape.array[i] = (char *)malloc(new_shape.width * sizeof(char));
 		memcpy(&new_shape.array[i][0], &copyshape[i][0], new_shape.width * sizeof(char));
 	}
 	return new_shape;
 }
 
-void destroy_shape(t_shape *shape)
+void	destroy_shape(t_shape *shape)
 {
 	for (int i = 0; i < shape->width; i++)
 	{
@@ -32,7 +32,7 @@ void destroy_shape(t_shape *shape)
 	free(shape->array);
 }
 
-bool check_placed(t_board board, const t_shape *shape)
+bool	check_placed(t_board board, const t_shape *shape)
 {
 	char **array = shape->array;
 	for (int i = 0; i < shape->width; i++)
@@ -53,7 +53,7 @@ bool check_placed(t_board board, const t_shape *shape)
 	return true;
 }
 
-void rotate_shape(t_shape *shape)
+void	rotate_shape(t_shape *shape)
 {
 	t_shape temp = duplicate_shape(shape);
 	int width = shape->width;
@@ -67,7 +67,7 @@ void rotate_shape(t_shape *shape)
 	destroy_shape(&temp);
 }
 
-void place_shape_to_board(t_board board, const t_shape* shape)
+void	place_shape_to_board(t_board board, const t_shape* shape)
 {
 	for (int i = 0; i < shape->width; i++)
 	{
@@ -78,7 +78,7 @@ void place_shape_to_board(t_board board, const t_shape* shape)
 	}
 }
 
-void print_game(t_game *game, t_shape *current)
+void	print_game(t_game *game, t_shape *current)
 {
 	t_board Buffer = {0};
 	place_shape_to_board(Buffer, current);
@@ -97,23 +97,24 @@ void print_game(t_game *game, t_shape *current)
 	printw("\nScore: %d\n", game->final);
 }
 
-suseconds_t usec(struct timeval* t)
+suseconds_t	usec(struct timeval* t)
 {
 	return (suseconds_t)(t->tv_sec * 1000000 + t->tv_usec);
 }
 
 struct timeval updated_at, now;
-int hasToUpdate(t_game *game)
+
+int		hasToUpdate(t_game *game)
 {
 	return (usec(&now) - usec(&updated_at)) > game->timer;
 }
 
-void set_timeout(int time)
+void	set_timeout(int time)
 {
 	timeout(time);
 }
 
-int remove_filled_lines(t_game *game)
+int		remove_filled_lines(t_game *game)
 {
 	int count = 0;
 	for (int n = 0; n < R; n++)
@@ -136,7 +137,7 @@ int remove_filled_lines(t_game *game)
 	return count;
 }
 
-void drop_new_shape(t_game *game, t_shape *current)
+void	drop_new_shape(t_game *game, t_shape *current)
 {
 	t_shape new_shape = duplicate_shape(&Tetriminoes[rand() % 7]);
 	new_shape.col = rand() % (C - new_shape.width + 1);
@@ -148,7 +149,7 @@ void drop_new_shape(t_game *game, t_shape *current)
 	}
 }
 
-int move_down_shape(t_game *game, t_shape* temp, t_shape* current)
+int		move_down_shape(t_game *game, t_shape* temp, t_shape* current)
 {
 	temp->row++;  //move down
 	if (check_placed(game->board, temp))
@@ -165,7 +166,7 @@ int move_down_shape(t_game *game, t_shape* temp, t_shape* current)
 	}
 }
 
-void init_game(t_game *game, t_shape* current)
+void	init_game(t_game *game, t_shape* current)
 {
 	*game = (t_game){
 		.board = {0},
@@ -183,7 +184,7 @@ void init_game(t_game *game, t_shape* current)
 	drop_new_shape(game, current);
 }
 
-void game_loop(t_game *game, t_shape* current)
+void	game_loop(t_game *game, t_shape* current)
 {
 	print_game(game, current);
 	while (game->on)
@@ -233,7 +234,7 @@ void game_loop(t_game *game, t_shape* current)
 	}
 }
 
-void finish_game(t_game *game, t_shape* current)
+void	finish_game(t_game *game, t_shape* current)
 {
 	endwin();
 	destroy_shape(current);
@@ -249,7 +250,7 @@ void finish_game(t_game *game, t_shape* current)
 	printf("\nScore: %d\n", game->final);
 }
 
-int main()
+int		main()
 {
 	t_game	game;
 	t_shape	current;
