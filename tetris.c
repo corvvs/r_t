@@ -167,6 +167,15 @@ int move_down_shape(t_game *game, t_shape* temp, t_shape* current)
 
 void init_game(t_game *game, t_shape* current)
 {
+	*game = (t_game){
+		.board = {0},
+		.timer = 400000,
+		.on = true,
+		.final = 0,
+		.decrease = 1000,
+	};
+	*current = (t_shape){0};
+
 	srand(time(0));
 	initscr();
 	gettimeofday(&updated_at, NULL);
@@ -242,14 +251,9 @@ void finish_game(t_game *game, t_shape* current)
 
 int main()
 {
-	t_game	game = {
-		.board = {0},
-		.timer = 400000,
-		.on = true,
-		.final = 0,
-		.decrease = 1000,
-	};
-	t_shape	current = {0};
+	t_game	game;
+	t_shape	current;
+
 	init_game(&game, &current);
 	game_loop(&game, &current);
 	finish_game(&game, &current);
