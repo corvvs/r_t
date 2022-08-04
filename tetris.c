@@ -9,7 +9,8 @@
 #define T 1
 #define F 0
 
-char GameBoard[R][C] = {0};
+typedef char t_board[R][C];
+t_board GameBoard = {0};
 int final = 0;
 char GameOn = T;
 suseconds_t timer = 400000;
@@ -56,7 +57,7 @@ void destroy_shape(t_shape *shape)
 	free(shape->array);
 }
 
-int check_placed(char board[R][C], const t_shape *shape)
+int check_placed(t_board board, const t_shape *shape)
 {
 	char **array = shape->array;
 	for (int i = 0; i < shape->width; i++)
@@ -91,9 +92,9 @@ void rotate_shape(t_shape *shape)
 	destroy_shape(&temp);
 }
 
-void print_game(char board[R][C])
+void print_game(t_board board)
 {
-	char Buffer[R][C] = {0};
+	t_board Buffer = {0};
 	for (int i = 0; i < current.width; i++)
 	{
 		for (int j = 0; j < current.width; j++)
@@ -128,7 +129,7 @@ void set_timeout(int time)
 	timeout(time);
 }
 
-void place_shape_to_board(char board[R][C], const t_shape* shape)
+void place_shape_to_board(t_board board, const t_shape* shape)
 {
 	for (int i = 0; i < shape->width; i++)
 	{
@@ -139,7 +140,7 @@ void place_shape_to_board(char board[R][C], const t_shape* shape)
 	}
 }
 
-int remove_filled_lines(char board[R][C])
+int remove_filled_lines(t_board board)
 {
 	int count = 0;
 	for (int n = 0; n < R; n++)
@@ -164,7 +165,7 @@ int remove_filled_lines(char board[R][C])
 	return count;
 }
 
-int move_down_shape(char board[R][C], t_shape* temp, t_shape* current)
+int move_down_shape(t_board board, t_shape* temp, t_shape* current)
 {
 	temp->row++;  //move down
 	if (check_placed(board, temp))
@@ -188,7 +189,7 @@ int move_down_shape(char board[R][C], t_shape* temp, t_shape* current)
 	}
 }
 
-void init_game(char board[R][C])
+void init_game(t_board board)
 {
 	srand(time(0));
 	final = 0;
@@ -206,7 +207,7 @@ void init_game(char board[R][C])
 	}
 }
 
-void game_loop(char board[R][C], t_shape* current)
+void game_loop(t_board board, t_shape* current)
 {
 	print_game(board);
 	while (GameOn)
@@ -256,7 +257,7 @@ void game_loop(char board[R][C], t_shape* current)
 	}
 }
 
-void finish_game(char board[R][C])
+void finish_game(t_board board)
 {
 	endwin();
 	destroy_shape(&current);
