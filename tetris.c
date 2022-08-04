@@ -9,7 +9,7 @@
 #define T 1
 #define F 0
 
-char Table[R][C] = {0};
+char GameBoard[R][C] = {0};
 int final = 0;
 char GameOn = T;
 suseconds_t timer = 400000;
@@ -64,7 +64,7 @@ int check_placed(const t_shape *shape){
 					return F;
 				
 			}
-			else if(Table[shape->row+i][shape->col+j] && array[i][j])
+			else if(GameBoard[shape->row+i][shape->col+j] && array[i][j])
 				return F;
 		}
 	}
@@ -98,7 +98,7 @@ void print_game(){
 	printw("42 Tetris\n");
 	for(i = 0; i < R ;i++){
 		for(j = 0; j < C ; j++){
-			printw("%c ", (Table[i][j] + Buffer[i][j])? '#': '.');
+			printw("%c ", (GameBoard[i][j] + Buffer[i][j])? '#': '.');
 		}
 		printw("\n");
 	}
@@ -120,7 +120,7 @@ void copy_shape_to_board(const t_shape* shape)
 	for(i = 0; i < shape->width ;i++){
 		for(j = 0; j < shape->width ; j++){
 			if(shape->array[i][j])
-				Table[shape->row+i][shape->col+j] = shape->array[i][j];
+				GameBoard[shape->row+i][shape->col+j] = shape->array[i][j];
 		}
 	}
 }
@@ -131,16 +131,16 @@ int remove_filled_lines()
 	for(n=0;n<R;n++){
 		int sum = 0;
 		for(m=0;m< C;m++) {
-			sum+=Table[n][m];
+			sum+=GameBoard[n][m];
 		}
 		if(sum==C){
 			count++;
 			int l, k;
 			for(k = n;k >=1;k--)
 				for(l=0;l<C;l++)
-					Table[k][l]=Table[k-1][l];
+					GameBoard[k][l]=GameBoard[k-1][l];
 			for(l=0;l<C;l++)
-				Table[k][l]=0;
+				GameBoard[k][l]=0;
 			timer-=decrease--;
 		}
 	}
@@ -240,7 +240,7 @@ void finish_game()
 	int i, j;
 	for(i = 0; i < R ;i++){
 		for(j = 0; j < C ; j++){
-			printf("%c ", Table[i][j] ? '#': '.');
+			printf("%c ", GameBoard[i][j] ? '#': '.');
 		}
 		printf("\n");
 	}
