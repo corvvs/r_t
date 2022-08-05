@@ -14,10 +14,10 @@ t_shape	duplicate_shape(const t_shape *shape)
 {
 	t_shape	new_shape = *shape;
 	char	**copyshape = shape->array;
-	new_shape.array = (char**)malloc(new_shape.width * sizeof(char*));
+	new_shape.array = (char **)malloc(new_shape.width * sizeof(char*));
 	for (int i = 0; i < new_shape.width; i++)
 	{
-		new_shape.array[i] = (char*)malloc(new_shape.width * sizeof(char));
+		new_shape.array[i] = (char *)malloc(new_shape.width * sizeof(char));
 		memcpy(&new_shape.array[i][0], &copyshape[i][0], new_shape.width * sizeof(char));
 	}
 	return new_shape;
@@ -80,40 +80,29 @@ void	place_shape_to_board(t_board board, const t_shape* shape)
 
 void	print_game(t_game *game, t_shape *current)
 {
-	t_board Buffer = {0};
-	place_shape_to_board(Buffer, current);
-	clear();
-	for (int i = 0; i < C - 9; i++)
-		printw(" ");
-	printw("42 Tetris\n");
-	for (int i = 0; i < R; i++)
-	{
-		for (int j = 0; j < C; j++)
-		{
-			printw("%c ", (game->board[i][j] + Buffer[i][j])? '#': '.');
-		}
-		printw("\n");
-	}
-	printw("\nScore: %d\n", game->final);
+	t_board buffer = {0};
+	place_shape_to_board(buffer, current);
+	display_to_window(buffer, game);
 }
 
-suseconds_t	usec(struct timeval* t)
+suseconds_t	usec(t_timeval* t)
 {
 	return (suseconds_t)(t->tv_sec * 1000000 + t->tv_usec);
 }
 
-struct timeval updated_at, now;
-int hasToUpdate(t_game *game)
+suseconds_t	diff_time(t_timeval *t0, t_timeval *t1)
 {
-	return (usec(&now) - usec(&updated_at)) > game->timer;
+	return (usec(t1) - usec(t0));
 }
 
-void set_timeout(int time)
+int		has_to_update(t_game *game)
 {
-	timeout(time);
+	t_timeval	now;
+	gettimeofday(&now, NULL);
+	return (diff_time(&game->updated_at, &now) > game->timer);
 }
 
-int	remove_filled_lines(t_game *game)
+int		remove_filled_lines(t_game *game)
 {
 	int count = 0;
 	for (int n = 0; n < R; n++)
@@ -148,7 +137,7 @@ void	drop_new_shape(t_game *game, t_shape *current)
 	}
 }
 
-int	move_down_shape(t_game *game, t_shape* temp, t_shape* current)
+int		move_down_shape(t_game *game, t_shape* temp, t_shape* current)
 {
 	temp->row++;  //move down
 	if (check_placed(game->board, temp))
@@ -177,10 +166,9 @@ void	init_game(t_game *game, t_shape* current)
 	*current = (t_shape){0};
 
 	srand(time(0));
-	initscr();
-	gettimeofday(&updated_at, NULL);
-	set_timeout(1);
+	gettimeofday(&game->updated_at, NULL);
 	drop_new_shape(game, current);
+	create_window();
 }
 
 void	game_loop(t_game *game, t_shape* current)
@@ -219,8 +207,7 @@ void	game_loop(t_game *game, t_shape* current)
 			destroy_shape(&temp);
 			print_game(game, current);
 		}
-		gettimeofday(&now, NULL);
-		if (hasToUpdate(game))
+		if  (has_to_update(game))
 		{
 			t_shape temp = duplicate_shape(current);
 			{
@@ -228,15 +215,13 @@ void	game_loop(t_game *game, t_shape* current)
 			}
 			destroy_shape(&temp);
 			print_game(game, current);
-			gettimeofday(&updated_at, NULL);
+			gettimeofday(&game->updated_at, NULL);
 		}
 	}
 }
 
-void	finish_game(t_game *game, t_shape* current)
+void	display_result(t_game *game)
 {
-	endwin();
-	destroy_shape(current);
 	for (int i = 0; i < R; i++)
 	{
 		for (int j = 0; j < C; j++)
@@ -249,7 +234,14 @@ void	finish_game(t_game *game, t_shape* current)
 	printf("\nScore: %d\n", game->final);
 }
 
-int	main()
+void	finish_game(t_game *game, t_shape* current)
+{
+	destroy_window();
+	destroy_shape(current);
+	display_result(game);
+}
+
+int		main()
 {
 	t_game	game;
 	t_shape	current;
