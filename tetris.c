@@ -1,27 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/time.h>
-#include <ncurses.h>
+#include "tetris.h"
 
-#define R 20
-#define C 15
-#define T 1
-#define F 0
-
-char Table[R][C] = {0};
-int final = 0;
-char GameOn = T;
-suseconds_t timer = 400000;
-int decrease = 1000;
-
-typedef struct {
-    char **array;
-    int width, row, col;
-} Struct;
-Struct current;
-
-const Struct StructsArray[7]= {
+const t_shape Tetriminoes[7] = {
 	{(char *[]){(char []){0,1,1},(char []){1,1,0}, (char []){0,0,0}}, 3},
 	{(char *[]){(char []){1,1,0},(char []){0,1,1}, (char []){0,0,0}}, 3},
 	{(char *[]){(char []){0,1,0},(char []){1,1,1}, (char []){0,0,0}}, 3},
@@ -31,242 +10,252 @@ const Struct StructsArray[7]= {
 	{(char *[]){(char []){0,0,0,0}, (char []){1,1,1,1}, (char []){0,0,0,0}, (char []){0,0,0,0}}, 4}
 };
 
-Struct FunctionCS(Struct shape){
-	Struct new_shape = shape;
-	char **copyshape = shape.array;
-	new_shape.array = (char**)malloc(new_shape.width*sizeof(char*));
-    int i, j;
-    for(i = 0; i < new_shape.width; i++){
-		new_shape.array[i] = (char*)malloc(new_shape.width*sizeof(char));
-		for(j=0; j < new_shape.width; j++) {
-			new_shape.array[i][j] = copyshape[i][j];
-		}
-    }
-    return new_shape;
+t_shape	duplicate_shape(const t_shape *shape)
+{
+	t_shape	new_shape = *shape;
+	char	**copyshape = shape->array;
+	new_shape.array = (char**)malloc(new_shape.width * sizeof(char*));
+	for (int i = 0; i < new_shape.width; i++)
+	{
+		new_shape.array[i] = (char*)malloc(new_shape.width * sizeof(char));
+		memcpy(&new_shape.array[i][0], &copyshape[i][0], new_shape.width * sizeof(char));
+	}
+	return new_shape;
 }
 
-void FunctionDS(Struct shape){
-    int i;
-    for(i = 0; i < shape.width; i++){
-		free(shape.array[i]);
-    }
-    free(shape.array);
+void	destroy_shape(t_shape *shape)
+{
+	for (int i = 0; i < shape->width; i++)
+	{
+		free(shape->array[i]);
+	}
+	free(shape->array);
 }
 
-int FunctionCP(Struct shape){
-	char **array = shape.array;
-	int i, j;
-	for(i = 0; i < shape.width;i++) {
-		for(j = 0; j < shape.width ;j++){
-			if((shape.col+j < 0 || shape.col+j >= C || shape.row+i >= R)){
-				if(array[i][j])
-					return F;
+bool	check_placed(t_board board, const t_shape *shape)
+{
+	char **array = shape->array;
+	for (int i = 0; i < shape->width; i++)
+	{
+		for (int j = 0; j < shape->width; j++)
+		{
+			if ((shape->col + j < 0 || shape->col + j >= C || shape->row + i >= R))
+			{
+				// 
+				if (array[i][j])
+					return false;
 				
 			}
-			else if(Table[shape.row+i][shape.col+j] && array[i][j])
-				return F;
+			else if (board[shape->row + i][shape->col + j] && array[i][j])
+				return false;
 		}
 	}
-	return T;
+	return true;
 }
 
-void FunctionRS(Struct shape){
-	Struct temp = FunctionCS(shape);
-	int i, j, k, width;
-	width = shape.width;
-	for(i = 0; i < width ; i++){
-		for(j = 0, k = width-1; j < width ; j++, k--){
-				shape.array[i][j] = temp.array[k][i];
+void	rotate_shape(t_shape *shape)
+{
+	t_shape temp = duplicate_shape(shape);
+	int width = shape->width;
+	for (int i = 0; i < width; i++)
+	{
+		for (int j = 0, k = width - 1; j < width; j++, k--)
+		{
+			shape->array[i][j] = temp.array[k][i];
 		}
 	}
-	FunctionDS(temp);
+	destroy_shape(&temp);
 }
 
-void FunctionPT(){
-	char Buffer[R][C] = {0};
-	int i, j;
-	for(i = 0; i < current.width ;i++){
-		for(j = 0; j < current.width ; j++){
-			if(current.array[i][j])
-				Buffer[current.row+i][current.col+j] = current.array[i][j];
+void	place_shape_to_board(t_board board, const t_shape* shape)
+{
+	for (int i = 0; i < shape->width; i++)
+	{
+		for (int j = 0; j < shape->width; j++)
+		{
+			board[shape->row + i][shape->col + j] |= shape->array[i][j];
 		}
 	}
+}
+
+void	print_game(t_game *game, t_shape *current)
+{
+	t_board Buffer = {0};
+	place_shape_to_board(Buffer, current);
 	clear();
-	for(i=0; i<C-9; i++)
+	for (int i = 0; i < C - 9; i++)
 		printw(" ");
 	printw("42 Tetris\n");
-	for(i = 0; i < R ;i++){
-		for(j = 0; j < C ; j++){
-			printw("%c ", (Table[i][j] + Buffer[i][j])? '#': '.');
+	for (int i = 0; i < R; i++)
+	{
+		for (int j = 0; j < C; j++)
+		{
+			printw("%c ", (game->board[i][j] + Buffer[i][j])? '#': '.');
 		}
 		printw("\n");
 	}
-	printw("\nScore: %d\n", final);
+	printw("\nScore: %d\n", game->final);
 }
 
-struct timeval before_now, now;
-int hasToUpdate(){
-	return ((suseconds_t)(now.tv_sec*1000000 + now.tv_usec) -((suseconds_t)before_now.tv_sec*1000000 + before_now.tv_usec)) > timer;
+suseconds_t	usec(struct timeval* t)
+{
+	return (suseconds_t)(t->tv_sec * 1000000 + t->tv_usec);
 }
 
-void set_timeout(int time) {
-	time = 1;
-	timeout(1);
+struct timeval updated_at, now;
+int hasToUpdate(t_game *game)
+{
+	return (usec(&now) - usec(&updated_at)) > game->timer;
 }
 
-int main() {
-    srand(time(0));
-    final = 0;
-    int c;
-    initscr();
-	gettimeofday(&before_now, NULL);
-	set_timeout(1);
-	Struct new_shape = FunctionCS(StructsArray[rand()%7]);
-    new_shape.col = rand()%(C-new_shape.width+1);
-    new_shape.row = 0;
-    FunctionDS(current);
-	current = new_shape;
-	if(!FunctionCP(current)){
-		GameOn = F;
+void set_timeout(int time)
+{
+	timeout(time);
+}
+
+int	remove_filled_lines(t_game *game)
+{
+	int count = 0;
+	for (int n = 0; n < R; n++)
+	{
+		int sum = 0;
+		for (int m = 0; m < C; m++)
+		{
+			sum += game->board[n][m];
+		}
+		if (sum == C)
+		{
+			count++;
+			int k;
+			for (k = n; k >= 1; k--)
+				memcpy(&game->board[k][0], &game->board[k - 1][0], sizeof(char) * C);
+			memset(&game->board[k][0], 0, sizeof(char) * C);
+			game->timer -= game->decrease--;
+		}
 	}
-    FunctionPT();
-	while(GameOn){
-		if ((c = getch()) != ERR) {
-			Struct temp = FunctionCS(current);
-			switch(c){
-				case 's':
-					temp.row++;  //move down
-					if(FunctionCP(temp))
-						current.row++;
-					else {
-						int i, j;
-						for(i = 0; i < current.width ;i++){
-							for(j = 0; j < current.width ; j++){
-								if(current.array[i][j])
-									Table[current.row+i][current.col+j] = current.array[i][j];
-							}
-						}
-						int n, m, sum, count=0;
-						for(n=0;n<R;n++){
-							sum = 0;
-							for(m=0;m< C;m++) {
-								sum+=Table[n][m];
-							}
-							if(sum==C){
-								count++;
-								int l, k;
-								for(k = n;k >=1;k--)
-									for(l=0;l<C;l++)
-										Table[k][l]=Table[k-1][l];
-								for(l=0;l<C;l++)
-									Table[k][l]=0;
-								timer-=decrease--;
-							}
-						}
-						final += 100*count;
-						Struct new_shape = FunctionCS(StructsArray[rand()%7]);
-						new_shape.col = rand()%(C-new_shape.width+1);
-						new_shape.row = 0;
-						FunctionDS(current);
-						current = new_shape;
-						if(!FunctionCP(current)){
-							GameOn = F;
-						}
-					}
+	return count;
+}
+
+void	drop_new_shape(t_game *game, t_shape *current)
+{
+	t_shape new_shape = duplicate_shape(&Tetriminoes[rand() % 7]);
+	new_shape.col = rand() % (C - new_shape.width + 1);
+	new_shape.row = 0;
+	destroy_shape(current);
+	*current = new_shape;
+	if (!check_placed(game->board, current)) {
+		game->on = false;
+	}
+}
+
+int	move_down_shape(t_game *game, t_shape* temp, t_shape* current)
+{
+	temp->row++;  //move down
+	if (check_placed(game->board, temp))
+	{
+		current->row++;
+		return 0;
+	}
+	else
+	{
+		place_shape_to_board(game->board, current);
+		int removed_lines = remove_filled_lines(game);
+		drop_new_shape(game, current);
+		return removed_lines;
+	}
+}
+
+void	init_game(t_game *game, t_shape* current)
+{
+	*game = (t_game){
+		.board = {0},
+		.timer = 400000,
+		.on = true,
+		.final = 0,
+		.decrease = 1000,
+	};
+	*current = (t_shape){0};
+
+	srand(time(0));
+	initscr();
+	gettimeofday(&updated_at, NULL);
+	set_timeout(1);
+	drop_new_shape(game, current);
+}
+
+void	game_loop(t_game *game, t_shape* current)
+{
+	print_game(game, current);
+	while (game->on)
+	{
+		int c;
+		if ((c = getch()) != ERR)
+		{
+			t_shape temp = duplicate_shape(current);
+			switch (c)
+			{
+				case KEY_QUICKEN:
+				{
+					int removed_lines = move_down_shape(game, &temp, current);
+					game->final += 100 * removed_lines;
 					break;
-				case 'd':
+				}
+				case KEY_MOVE_RIGHT:
 					temp.col++;
-					if(FunctionCP(temp))
-						current.col++;
+					if (check_placed(game->board, &temp))
+						current->col++;
 					break;
-				case 'a':
+				case KEY_MOVE_LEFT:
 					temp.col--;
-					if(FunctionCP(temp))
-						current.col--;
+					if (check_placed(game->board, &temp))
+						current->col--;
 					break;
-				case 'w':
-					FunctionRS(temp);
-					if(FunctionCP(temp))
-						FunctionRS(current);
+				case KEY_ROTATE:
+					rotate_shape(&temp);
+					if (check_placed(game->board, &temp))
+						rotate_shape(current);
 					break;
 			}
-			FunctionDS(temp);
-			FunctionPT();
+			destroy_shape(&temp);
+			print_game(game, current);
 		}
 		gettimeofday(&now, NULL);
-		if (hasToUpdate()) {
-			Struct temp = FunctionCS(current);
-			switch('s'){
-				case 's':
-					temp.row++;
-					if(FunctionCP(temp))
-						current.row++;
-					else {
-						int i, j;
-						for(i = 0; i < current.width ;i++){
-							for(j = 0; j < current.width ; j++){
-								if(current.array[i][j])
-									Table[current.row+i][current.col+j] = current.array[i][j];
-							}
-						}
-						int n, m, sum, count=0;
-						for(n=0;n<R;n++){
-							sum = 0;
-							for(m=0;m< C;m++) {
-								sum+=Table[n][m];
-							}
-							if(sum==C){
-								count++;
-								int l, k;
-								for(k = n;k >=1;k--)
-									for(l=0;l<C;l++)
-										Table[k][l]=Table[k-1][l];
-								for(l=0;l<C;l++)
-									Table[k][l]=0;
-								timer-=decrease--;
-							}
-						}
-						Struct new_shape = FunctionCS(StructsArray[rand()%7]);
-						new_shape.col = rand()%(C-new_shape.width+1);
-						new_shape.row = 0;
-						FunctionDS(current);
-						current = new_shape;
-						if(!FunctionCP(current)){
-							GameOn = F;
-						}
-					}
-					break;
-				case 'd':
-					temp.col++;
-					if(FunctionCP(temp))
-						current.col++;
-					break;
-				case 'a':
-					temp.col--;
-					if(FunctionCP(temp))
-						current.col--;
-					break;
-				case 'w':
-					FunctionRS(temp);
-					if(FunctionCP(temp))
-						FunctionRS(current);
-					break;
+		if (hasToUpdate(game))
+		{
+			t_shape temp = duplicate_shape(current);
+			{
+				move_down_shape(game, &temp, current);
 			}
-			FunctionDS(temp);
-			FunctionPT();
-			gettimeofday(&before_now, NULL);
+			destroy_shape(&temp);
+			print_game(game, current);
+			gettimeofday(&updated_at, NULL);
 		}
 	}
-	FunctionDS(current);
+}
+
+void	finish_game(t_game *game, t_shape* current)
+{
 	endwin();
-	int i, j;
-	for(i = 0; i < R ;i++){
-		for(j = 0; j < C ; j++){
-			printf("%c ", Table[i][j] ? '#': '.');
+	destroy_shape(current);
+	for (int i = 0; i < R; i++)
+	{
+		for (int j = 0; j < C; j++)
+		{
+			printf("%c ", game->board[i][j] ? '#': '.');
 		}
 		printf("\n");
 	}
 	printf("\nGame over!\n");
-	printf("\nScore: %d\n", final);
-    return 0;
+	printf("\nScore: %d\n", game->final);
+}
+
+int	main()
+{
+	t_game	game;
+	t_shape	current;
+
+	init_game(&game, &current);
+	game_loop(&game, &current);
+	finish_game(&game, &current);
+	return 0;
 }
