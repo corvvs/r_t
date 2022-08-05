@@ -58,6 +58,34 @@ void	print_game(t_game *game, t_shape *current)
 	display_to_window(buffer, game);
 }
 
+void	game_loop_switch(t_game *game, t_shape* current, int c, t_shape temp)
+{
+	switch (c)
+	{
+		case KEY_QUICKEN:
+		{
+			int removed_lines = move_down_shape(game, &temp, current);
+			game->final += 100 * removed_lines;
+			break;
+		}
+		case KEY_MOVE_RIGHT:
+			temp.col++;
+			if (check_placed(game->board, &temp))
+				current->col++;
+			break;
+		case KEY_MOVE_LEFT:
+			temp.col--;
+			if (check_placed(game->board, &temp))
+				current->col--;
+			break;
+		case KEY_ROTATE:
+			rotate_shape(&temp);
+			if (check_placed(game->board, &temp))
+				rotate_shape(current);
+			break;
+	}
+}
+
 void	game_loop(t_game *game, t_shape* current)
 {
 	print_game(game, current);
@@ -67,30 +95,7 @@ void	game_loop(t_game *game, t_shape* current)
 		if ((c = getch()) != ERR)
 		{
 			t_shape temp = duplicate_shape(current);
-			switch (c)
-			{
-				case KEY_QUICKEN:
-				{
-					int removed_lines = move_down_shape(game, &temp, current);
-					game->final += 100 * removed_lines;
-					break;
-				}
-				case KEY_MOVE_RIGHT:
-					temp.col++;
-					if (check_placed(game->board, &temp))
-						current->col++;
-					break;
-				case KEY_MOVE_LEFT:
-					temp.col--;
-					if (check_placed(game->board, &temp))
-						current->col--;
-					break;
-				case KEY_ROTATE:
-					rotate_shape(&temp);
-					if (check_placed(game->board, &temp))
-						rotate_shape(current);
-					break;
-			}
+			game_loop_switch(game, current, c, temp);
 			destroy_shape(&temp);
 			print_game(game, current);
 		}
