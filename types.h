@@ -1,5 +1,5 @@
 #ifndef TYPES_H
-#define TYPES_H
+# define TYPES_H
 
 #include <stdio.h>
 #include <string.h>
@@ -16,9 +16,7 @@
 #define KEY_MOVE_LEFT	'a'
 #define KEY_ROTATE		'w'
 
-
 typedef struct timeval t_timeval;
-
 typedef char t_board[R][C];
 
 typedef struct s_shape {

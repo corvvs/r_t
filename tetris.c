@@ -78,16 +78,6 @@ void	place_shape_to_board(t_board board, const t_shape* shape)
 	}
 }
 
-suseconds_t	usec(t_timeval* t)
-{
-	return (suseconds_t)(t->tv_sec * 1000000 + t->tv_usec);
-}
-
-suseconds_t	diff_time(t_timeval *t0, t_timeval *t1)
-{
-	return (usec(t1) - usec(t0));
-}
-
 int		remove_filled_lines(t_game *game)
 {
 	int count = 0;
@@ -121,44 +111,6 @@ void	drop_new_shape(t_game *game, t_shape *current)
 	if (!check_placed(game->board, current)) {
 		game->on = false;
 	}
-}
-
-void	init_game(t_game *game, t_shape* current)
-{
-	*game = (t_game){
-		.board = {0},
-		.timer = 400000,
-		.on = true,
-		.final = 0,
-		.decrease = 1000,
-	};
-	*current = (t_shape){0};
-
-	srand(time(0));
-	gettimeofday(&game->updated_at, NULL);
-	drop_new_shape(game, current);
-	create_window();
-}
-
-void	display_result(t_game *game)
-{
-	for (int i = 0; i < R; i++)
-	{
-		for (int j = 0; j < C; j++)
-		{
-			printf("%c ", game->board[i][j] ? '#': '.');
-		}
-		printf("\n");
-	}
-	printf("\nGame over!\n");
-	printf("\nScore: %d\n", game->final);
-}
-
-void	finish_game(t_game *game, t_shape* current)
-{
-	destroy_window();
-	destroy_shape(current);
-	display_result(game);
 }
 
 int		main()
