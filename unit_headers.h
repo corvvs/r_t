@@ -3,7 +3,6 @@
 #include "types.h"
 
 //init_game.c
-void	create_window();
 void	init_game(t_game *game, t_shape* current);
 
 //game_loop.c
@@ -25,8 +24,12 @@ void	drop_new_shape(t_game *game, t_shape *current);
 int		remove_filled_lines(t_game *game);
 
 //finish_game.c
-void	destroy_window();
-void	display_result(t_game *game);
+static void     display_result(t_game *game);
 void	finish_game(t_game *game, t_shape* current);
+
+//display.c
+void	create_window();
+void	display_to_window(t_board buffer, t_game *game);
+void	destroy_window();
 
 #endif

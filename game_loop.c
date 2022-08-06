@@ -1,15 +1,5 @@
 #include "tetris.h"
 
-suseconds_t	usec(t_timeval* t)
-{
-	return (suseconds_t)(t->tv_sec * 1000000 + t->tv_usec);
-}
-
-suseconds_t	diff_time(t_timeval *t0, t_timeval *t1)
-{
-	return (usec(t1) - usec(t0));
-}
-
 int		move_down_shape(t_game *game, t_shape* temp, t_shape* current)
 {
 	temp->row++;  //move down
@@ -32,23 +22,6 @@ int		has_to_update(t_game *game)
 	t_timeval	now;
 	gettimeofday(&now, NULL);
 	return (diff_time(&game->updated_at, &now) > game->timer);
-}
-
-void	display_to_window(t_board buffer, t_game *game)
-{
-	clear();
-	for (int i = 0; i < C - 9; i++)
-		printw(" ");
-	printw("42 Tetris\n");
-	for (int i = 0; i < R; i++)
-	{
-		for (int j = 0; j < C; j++)
-		{
-			printw("%c ", (game->board[i][j] + buffer[i][j])? '#': '.');
-		}
-		printw("\n");
-	}
-	printw("\nScore: %d\n", game->final);
 }
 
 void	print_game(t_game *game, t_shape *current)

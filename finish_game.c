@@ -1,11 +1,6 @@
 #include "tetris.h"
 
-void	destroy_window()
-{
-	endwin();
-}
-
-void	display_result(t_game *game)
+static void	display_result(t_game *game)
 {
 	for (int i = 0; i < R; i++)
 	{

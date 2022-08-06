@@ -1,11 +1,5 @@
 #include "tetris.h"
 
-void	create_window()
-{
-	initscr();
-	timeout(1);
-}
-
 void	init_game(t_game *game, t_shape* current)
 {
 	*game = (t_game){
