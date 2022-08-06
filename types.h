@@ -1,5 +1,5 @@
-#ifndef TYPES_H
-#define TYPES_H
+#ifndef TETRIS_TYPES_H
+#define TETRIS_TYPES_H
 
 #include <stdio.h>
 #include <string.h>
@@ -16,24 +16,21 @@
 #define KEY_MOVE_LEFT	'a'
 #define KEY_ROTATE		'w'
 
-
-typedef struct timeval t_timeval;
-
 typedef char t_board[R][C];
 
-typedef struct s_shape {
+typedef struct	s_shape {
 	char **array;
 	int width, row, col;
-} t_shape;
+}	t_shape;
 
-typedef struct s_game
+typedef struct	s_game
 {
 	t_board		board;
 	suseconds_t	timer;
 	bool		on;
 	int			final;
 	int			decrease;
-	t_timeval	updated_at;
+	suseconds_t	updated_at;
 }	t_game;
 
 #endif

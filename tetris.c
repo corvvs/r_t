@@ -49,21 +49,9 @@ void	print_game(t_game *game, t_shape *current)
 	display_to_window(buffer, game);
 }
 
-suseconds_t	usec(t_timeval* t)
-{
-	return (suseconds_t)(t->tv_sec * 1000000 + t->tv_usec);
-}
-
-suseconds_t	diff_time(t_timeval *t0, t_timeval *t1)
-{
-	return (usec(t1) - usec(t0));
-}
-
 int		has_to_update(t_game *game)
 {
-	t_timeval	now;
-	gettimeofday(&now, NULL);
-	return (diff_time(&game->updated_at, &now) > game->timer);
+	return (get_current_time() - game->updated_at) > game->timer;
 }
 
 int		remove_filled_lines(t_game *game)
@@ -130,7 +118,7 @@ void	init_game(t_game *game, t_shape* current)
 	*current = (t_shape){0};
 
 	srand(time(0));
-	gettimeofday(&game->updated_at, NULL);
+	game->updated_at = get_current_time();
 	drop_new_shape(game, current);
 	create_window();
 }
@@ -179,7 +167,7 @@ void	game_loop(t_game *game, t_shape* current)
 			}
 			destroy_shape(&temp);
 			print_game(game, current);
-			gettimeofday(&game->updated_at, NULL);
+			game->updated_at = get_current_time();
 		}
 	}
 }
