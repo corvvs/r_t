@@ -1,7 +1,11 @@
-NAME	:=	tetris
-CFLAGS	:=
+NAME	=	tetris
 
-SRCS	:=	tetris.c init_game.c \
+CFLAGS	= 
+
+SRCS_DIR = ./srcs/
+
+SRCS	=	tetris.c \
+		init_game.c \
 		game_loop.c \
 		finish_game.c \
 		common.c \
@@ -9,16 +13,24 @@ SRCS	:=	tetris.c init_game.c \
 		display.c \
 		time.c
 
-OBJS	:=	$(SRCS:.c=.o)
+OBJS	=	$(SRCS:.c=.o)
 
-RM		:= 	rm -rf
+HEADER_DIR = ./includes/
 
-.PHONY:	all clean fclean re
+HEADER = set_headers.h \
+		tetris.h \
+		types.h
+
+RM		= 	rm -rf
 
 all: $(NAME)
 
-$(NAME):	$(OBJS)
-	gcc $(CFLAGS) -lncurses -o $@ $^
+$(NAME):	-I${HEADER_DIR}${HEADER} ${SRCS_DIR}$(OBJS)
+	gcc $(CFLAGS) ${HEADER_DIR}${HEADER} ${SRCS_DIR}$(OBJS) -o ${NAME}
+#-lncurses -o $@ $^
+
+.c.o:
+		${CC} ${CFLAGS} -c $< -o ${<:.c=.o}
 
 clean:
 	$(RM) $(OBJS)
@@ -27,3 +39,5 @@ fclean:	clean
 	$(RM) $(NAME)
 
 re:		fclean all
+
+.PHONY:	all clean fclean re
