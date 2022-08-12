@@ -7,7 +7,6 @@
 #include <stdbool.h>
 #include <time.h>
 #include <sys/time.h>
-#include <ncurses.h>
 
 #define R 20
 #define C 15

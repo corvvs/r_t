@@ -37,20 +37,20 @@ static bool	check_collision(t_board board, const t_shape *shape)
 		for (int j = 0; j < shape->width; j++) {
 			if ((shape->col + j < 0 || shape->col + j >= C || shape->row + i >= R)) {
 				if (array[i][j])
-					return false;
+					return true;
 				
 			}
 			else if (board[shape->row + i][shape->col + j] && array[i][j])
-				return false;
+				return true;
 		}
 	}
-	return true;
+	return false;
 }
 
 void	drop_new_shape(t_game *game, t_shape *current)
 {
 	*current = create_shape();
-	if (!check_collision(game->board, current)) {
+	if (check_collision(game->board, current)) {
 		game->game_on = false;
 	}
 }
@@ -58,7 +58,7 @@ void	drop_new_shape(t_game *game, t_shape *current)
 static int	move_down_shape(t_game *game, t_shape* temp, t_shape* current)
 {
 	temp->row++;
-	if (check_collision(game->board, temp)) {
+	if (!check_collision(game->board, temp)) {
 		current->row++;
 		return 0;
 	} else {
@@ -82,7 +82,7 @@ void	perform_move_right(t_game *game, t_shape *current)
 {
 	t_shape temp = duplicate_shape(current);
 	temp.col++;
-	if (check_collision(game->board, &temp))
+	if (!check_collision(game->board, &temp))
 		current->col++;
 	destroy_shape(&temp);
 }
@@ -91,7 +91,7 @@ void	perform_move_left(t_game *game, t_shape *current)
 {
 	t_shape temp = duplicate_shape(current);
 	temp.col--;
-	if (check_collision(game->board, &temp))
+	if (!check_collision(game->board, &temp))
 		current->col--;
 	destroy_shape(&temp);
 }
@@ -100,7 +100,7 @@ void	perform_rotate_clockwise(t_game *game, t_shape *current)
 {
 	t_shape temp = duplicate_shape(current);
 	rotate_shape_clockwise(&temp);
-	if (check_collision(game->board, &temp))
+	if (!check_collision(game->board, &temp))
 		rotate_shape_clockwise(current);
 	destroy_shape(&temp);
 }

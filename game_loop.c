@@ -1,5 +1,7 @@
 #include "tetris.h"
+#include "window.h"
 #include "key_action.h"
+#include <ncurses.h>
 
 static int	has_over_turn(t_game *game)
 {
@@ -17,8 +19,7 @@ static void	print_game(t_game *game, t_shape *current)
 // キー入力に対する処理
 static void	perform_key_action(t_game *game, t_shape* current)
 {
-	int c;
-	if ((c = getch()) == ERR) { return; }
+	int c = get_char();
 	switch (c) {
 		case KEY_QUICKEN:
 			perform_quicken(game, current);
@@ -32,6 +33,8 @@ static void	perform_key_action(t_game *game, t_shape* current)
 		case KEY_ROTATE:
 			perform_rotate_clockwise(game, current);
 			break;
+		default:
+			return;
 	}
 	print_game(game, current);
 }
@@ -47,10 +50,12 @@ static void	perform_turn_end(t_game *game, t_shape* current)
 
 void		game_loop(t_game *game, t_shape* current)
 {
+	create_window();
 	drop_new_shape(game, current);
 	print_game(game, current);
 	while (game->game_on) {
 		perform_key_action(game, current);
 		perform_turn_end(game, current);
 	}
+	destroy_window();
 }

@@ -1,4 +1,10 @@
-#include "display.h"
+#include <ncurses.h>
+#include "window.h"
+
+int		get_char()
+{
+	return getch();
+}
 
 void	create_window()
 {
