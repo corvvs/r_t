@@ -11,7 +11,7 @@ static void	display_result(t_game *game)
 		printf("\n");
 	}
 	printf("\nGame over!\n");
-	printf("\nScore: %d\n", game->final);
+	printf("\nScore: %d\n", game->score);
 }
 
 void	finish_game(t_game *game, t_shape* current)

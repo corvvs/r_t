@@ -26,11 +26,11 @@ typedef struct	s_shape {
 typedef struct	s_game
 {
 	t_board		board;
-	suseconds_t	timer;
-	bool		on;
-	int			final;
-	int			decrease;
-	suseconds_t	updated_at;
+	suseconds_t	turn_duration;
+	bool		game_on;
+	int			score;
+	suseconds_t	duration_decreasement;
+	suseconds_t	turn_started_at;
 }	t_game;
 
 #endif

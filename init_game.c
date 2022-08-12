@@ -4,14 +4,14 @@ void	init_game(t_game *game, t_shape* current)
 {
 	*game = (t_game){
 		.board = {0},
-		.timer = 400000,
-		.on = true,
-		.final = 0,
-		.decrease = 1000,
+		.turn_duration = 400000,
+		.game_on = true,
+		.score = 0,
+		.duration_decreasement = 1000,
 	};
 	*current = (t_shape){0};
 
 	srand(time(0));
-	game->updated_at = get_current_time();
+	game->turn_started_at = get_current_time();
 	create_window();
 }

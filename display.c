@@ -16,11 +16,11 @@ void	display_to_window(t_board buffer, t_game *game)
 	{
 		for (int j = 0; j < C; j++)
 		{
-			printw("%c ", (game->board[i][j] + buffer[i][j])? '#': '.');
+			printw("%c ", (game->board[i][j] + buffer[i][j]) ? '#' : '.');
 		}
 		printw("\n");
 	}
-	printw("\nScore: %d\n", game->final);
+	printw("\nScore: %d\n", game->score);
 }
 
 void	destroy_window()
