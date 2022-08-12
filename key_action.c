@@ -3,6 +3,19 @@
 #include "shape.h"
 #include "key_action.h"
 
+static bool	is_over_the_top(const t_shape* shape, int i)
+{
+	const int	i_board = i + shape->row;
+	return (i_board < 0);
+}
+
+static bool	is_out_of_walls(const t_shape* shape, int i, int j)
+{
+	const int	i_board = i + shape->row;
+	const int	j_board = j + shape->col;
+	return (R <= i_board || j_board < 0 || C <= j_board);
+}
+
 // ブロックで埋まった行を削除し, 削除した行の数を返す
 static int	remove_filled_lines(t_game *game) {
 	int n_removed_lines = 0;
@@ -28,18 +41,15 @@ static int	remove_filled_lines(t_game *game) {
 static bool	check_collision(t_board board, const t_shape *shape)
 {
 	char **array = shape->array;
-	for (int i_shape = 0; i_shape < shape->width; i_shape += 1) {
-		for (int j_shape = 0; j_shape < shape->width; j_shape += 1) {
-			const bool	is_shape_filled = !!array[i_shape][j_shape];
+	for (int i = 0; i < shape->width; i += 1) {
+		for (int j = 0; j < shape->width; j += 1) {
+			const bool	is_shape_filled = !!array[i][j];
 			if (!is_shape_filled) { continue; }
-			const int	i_board = i_shape + shape->row;
-			const int	j_board = j_shape + shape->col;
-			const bool	is_out_of_bounds = (j_board < 0 || C <= j_board || R <= i_board);
-			if (is_out_of_bounds) {
+			if (is_out_of_walls(shape, i, j)) {
 				// アウト: shape の埋まっている位置が board からはみ出している(ただし上へのはみ出しは不問)
 				return true;
 			}
-			const bool	is_board_filled = !!board[i_board][j_board];
+			const bool	is_board_filled = !!board[i + shape->row][j + shape->col];
 			if (is_board_filled) {
 				// アウト: shape と board で同じ位置が埋まっている
 				return true;
@@ -67,7 +77,10 @@ void	place_shape_to_board(t_board board, const t_shape* shape)
 {
 	for (int i = 0; i < shape->width; i++) {
 		for (int j = 0; j < shape->width; j++) {
-			board[shape->row + i][shape->col + j] |= shape->array[i][j];
+			const bool	is_shape_filled = !!shape->array[i][j];
+			if (!is_shape_filled) { continue; }
+			if (is_out_of_walls(shape, i, j) || is_over_the_top(shape, i)) { continue; }
+			board[shape->row + i][shape->col + j] = shape->array[i][j];
 		}
 	}
 }
