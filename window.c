@@ -1,6 +1,8 @@
 #include <ncurses.h>
-#include "types.h"c
+#include "types.h"
 #define KEY_INPUT_WAIT_TIME_MS 1
+
+// ncurses 関数はすべてこのファイルに押し込まれている
 
 int		get_char()
 {

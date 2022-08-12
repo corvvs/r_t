@@ -1,7 +1,7 @@
 #include "types.h"
 #include "shape.h"
 
-static void	display_result(t_game *game)
+static void	print_result(t_game *game)
 {
 	for (int i = 0; i < R; i++) {
 		for (int j = 0; j < C; j++) {
@@ -16,5 +16,5 @@ static void	display_result(t_game *game)
 void	finish_game(t_game *game, t_shape* current)
 {
 	destroy_shape(current);
-	display_result(game);
+	print_result(game);
 }

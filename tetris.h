@@ -1,8 +1,6 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
-// 外部公開用
-
 #include "types.h"
 
 // ゲームパラメータの初期化

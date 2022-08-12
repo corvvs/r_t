@@ -10,5 +10,4 @@ void	perform_move_right(t_game *game, t_shape *current);
 void	perform_move_left(t_game *game, t_shape *current);
 void	perform_rotate_clockwise(t_game *game, t_shape *current);
 
-
 #endif

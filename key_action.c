@@ -1,17 +1,9 @@
 #include <string.h>
 #include "types.h"
 #include "shape.h"
+#include "key_action.h"
 
-void	place_shape_to_board(t_board board, const t_shape* shape)
-{
-	for (int i = 0; i < shape->width; i++) {
-		for (int j = 0; j < shape->width; j++) {
-			board[shape->row + i][shape->col + j] |= shape->array[i][j];
-		}
-	}
-}
-
-static int		remove_filled_lines(t_game *game) {
+static int	remove_filled_lines(t_game *game) {
 	int count = 0;
 	for (int n = 0; n < R; n++) {
 		int blocks = 0;
@@ -46,14 +38,6 @@ static bool	check_collision(t_board board, const t_shape *shape)
 	return false;
 }
 
-void	drop_new_shape(t_game *game, t_shape *current)
-{
-	*current = create_shape();
-	if (check_collision(game->board, current)) {
-		game->game_on = false;
-	}
-}
-
 static int	move_down_shape(t_game *game, t_shape* temp, t_shape* current)
 {
 	temp->row++;
@@ -65,6 +49,23 @@ static int	move_down_shape(t_game *game, t_shape* temp, t_shape* current)
 		int removed_lines = remove_filled_lines(game);
 		drop_new_shape(game, current);
 		return removed_lines;
+	}
+}
+
+void	place_shape_to_board(t_board board, const t_shape* shape)
+{
+	for (int i = 0; i < shape->width; i++) {
+		for (int j = 0; j < shape->width; j++) {
+			board[shape->row + i][shape->col + j] |= shape->array[i][j];
+		}
+	}
+}
+
+void	drop_new_shape(t_game *game, t_shape *current)
+{
+	*current = create_shape();
+	if (check_collision(game->board, current)) {
+		game->game_on = false;
 	}
 }
 
