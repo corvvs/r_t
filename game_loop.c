@@ -35,8 +35,6 @@ static void	perform_key_action(t_game *game, t_shape* current)
 		case KEY_ROTATE:
 			perform_rotate_clockwise(game, current);
 			break;
-		default:
-			return;
 	}
 	print_game(game, current);
 }
