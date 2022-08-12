@@ -5,7 +5,7 @@
 void	init_game(t_game *game, t_shape* current)
 {
 	*game = (t_game){
-		.board = {0},
+		.board = {},
 		.game_on = true,
 		.score = 0,
 		.turn_duration = INITIAL_TURN_DURATION_MS * 1000,

@@ -13,7 +13,7 @@ static int	has_over_turn(t_game *game)
 
 static void	print_game(t_game *game, t_shape *current)
 {
-	t_board print_buffer = {0};
+	t_board print_buffer = {};
 	place_shape_to_board(print_buffer, current);
 	display_to_window(print_buffer, game);
 }
