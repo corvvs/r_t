@@ -21,7 +21,7 @@ static void	print_game(t_game *game, t_shape *current)
 // キー入力に対する処理
 static void	perform_key_action(t_game *game, t_shape* current)
 {
-	int c = get_char();
+	const int c = get_char();
 	switch (c) {
 		case KEY_QUICKEN:
 			perform_quicken(game, current);

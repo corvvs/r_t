@@ -24,6 +24,7 @@ static int	remove_filled_lines(t_game *game) {
 	return n_removed_lines;
 }
 
+// shape が board の端や既存のブロックにぶつかっているかどうか判定
 static bool	check_collision(t_board board, const t_shape *shape)
 {
 	char **array = shape->array;
@@ -57,7 +58,7 @@ static int	move_down_shape(t_game *game, t_shape* temp, t_shape* current)
 		return 0;
 	}
 	place_shape_to_board(game->board, current);
-	int removed_lines = remove_filled_lines(game);
+	const int removed_lines = remove_filled_lines(game);
 	drop_new_shape(game, current);
 	return removed_lines;
 }
@@ -82,8 +83,8 @@ void	drop_new_shape(t_game *game, t_shape *current)
 void	perform_quicken(t_game *game, t_shape *current)
 {
 	t_shape temp = duplicate_shape(current);
-	int removed_lines = move_down_shape(game, &temp, current);
-	game->score += 100 * removed_lines;
+	const int removed_lines = move_down_shape(game, &temp, current);
+	game->score += removed_lines * SCORE_PER_LINE;
 	destroy_shape(&temp);
 }
 

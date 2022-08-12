@@ -45,7 +45,7 @@ const t_shape Tetrominoes[7] = {
 		.array = (char *[]){
 			(char []){1,0,0},
 			(char []){1,1,1},
-			(char []){0,0,0}
+			(char []){0,0,0},
 		},
 		.width = 3,
 	},
@@ -63,10 +63,10 @@ const t_shape Tetrominoes[7] = {
 			(char []){0,0,0,0},
 			(char []){1,1,1,1},
 			(char []){0,0,0,0},
-			(char []){0,0,0,0}
+			(char []){0,0,0,0},
 		},
 		.width = 4,
-	}
+	},
 };
 
 t_shape	duplicate_shape(const t_shape *shape)
@@ -100,7 +100,7 @@ void	destroy_shape(t_shape *shape)
 void	rotate_shape_clockwise(t_shape *shape)
 {
 	t_shape temp = duplicate_shape(shape);
-	int width = shape->width;
+	const int width = shape->width;
 	for (int i = 0; i < width; i++) {
 		for (int j = 0, k = width - 1; j < width; j++, k--) {
 			shape->array[i][j] = temp.array[k][i];

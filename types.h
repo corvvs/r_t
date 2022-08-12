@@ -8,8 +8,9 @@
 // ゲームパラメータ
 #define R 20
 #define C 15
-#define INITIAL_TURN_DURATION 400000
-#define INITIAL_TURN_DECREASEMENT 1000
+#define INITIAL_TURN_DURATION_MS 400
+#define INITIAL_TURN_DECREASEMENT_MS 1
+#define SCORE_PER_LINE 100
 
 // キーコンフィグ
 #define KEY_QUICKEN		's'
