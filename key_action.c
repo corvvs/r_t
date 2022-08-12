@@ -3,12 +3,14 @@
 #include "shape.h"
 #include "key_action.h"
 
+// シェイプ位置i をボード位置に直した時, ボードの上からはみ出しているかどうか
 static bool	is_over_the_top(const t_shape* shape, int i)
 {
 	const int	i_board = i + shape->row;
 	return (i_board < 0);
 }
 
+// シェイプ位置i, j をボード位置に直した時, ボードの下・左・右からはみ出しているかどうか
 static bool	is_out_of_walls(const t_shape* shape, int i, int j)
 {
 	const int	i_board = i + shape->row;
