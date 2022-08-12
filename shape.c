@@ -2,14 +2,71 @@
 #include <stdlib.h>
 #include "types.h"
 
+// テトロミノ7種(SZTLJOI)
 const t_shape Tetrominoes[7] = {
-	{(char *[]){(char []){0,1,1},(char []){1,1,0}, (char []){0,0,0}}, 3},
-	{(char *[]){(char []){1,1,0},(char []){0,1,1}, (char []){0,0,0}}, 3},
-	{(char *[]){(char []){0,1,0},(char []){1,1,1}, (char []){0,0,0}}, 3},
-	{(char *[]){(char []){0,0,1},(char []){1,1,1}, (char []){0,0,0}}, 3},
-	{(char *[]){(char []){1,0,0},(char []){1,1,1}, (char []){0,0,0}}, 3},
-	{(char *[]){(char []){1,1},(char []){1,1}}, 2},
-	{(char *[]){(char []){0,0,0,0}, (char []){1,1,1,1}, (char []){0,0,0,0}, (char []){0,0,0,0}}, 4}
+	{
+		// S
+		.array = (char *[]){
+			(char []){0,1,1},
+			(char []){1,1,0},
+			(char []){0,0,0},
+		},
+		.width = 3,
+	},
+	{
+		// Z
+		.array = (char *[]){
+			(char []){1,1,0},
+			(char []){0,1,1},
+			(char []){0,0,0},
+		},
+		.width = 3,
+	},
+	{
+		// T
+		.array = (char *[]){
+			(char []){0,1,0},
+			(char []){1,1,1},
+			(char []){0,0,0},
+		},
+		.width = 3,
+	},
+	{
+		// L 
+		.array = (char *[]){
+			(char []){0,0,1},
+			(char []){1,1,1},
+			(char []){0,0,0},
+		},
+		.width = 3,
+	},
+	{
+		// J
+		.array = (char *[]){
+			(char []){1,0,0},
+			(char []){1,1,1},
+			(char []){0,0,0}
+		},
+		.width = 3,
+	},
+	{
+		// O
+		.array = (char *[]){
+			(char []){1,1},
+			(char []){1,1},
+		},
+		.width = 2,
+	},
+	{
+		// I
+		.array = (char *[]){
+			(char []){0,0,0,0},
+			(char []){1,1,1,1},
+			(char []){0,0,0,0},
+			(char []){0,0,0,0}
+		},
+		.width = 4,
+	}
 };
 
 t_shape	duplicate_shape(const t_shape *shape)
