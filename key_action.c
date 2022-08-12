@@ -39,9 +39,7 @@ static bool	check_collision(t_board board, const t_shape *shape)
 			if ((shape->col + j < 0 || shape->col + j >= C || shape->row + i >= R)) {
 				if (array[i][j])
 					return true;
-				
-			}
-			else if (board[shape->row + i][shape->col + j] && array[i][j])
+			} else if (board[shape->row + i][shape->col + j] && array[i][j])
 				return true;
 		}
 	}

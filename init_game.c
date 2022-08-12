@@ -8,8 +8,8 @@ void	init_game(t_game *game, t_shape* current)
 		.board = {0},
 		.game_on = true,
 		.score = 0,
-		.turn_duration = 400000,
-		.duration_decreasement = 1000,
+		.turn_duration = INITIAL_TURN_DURATION,
+		.duration_decreasement = INITIAL_TURN_DECREASEMENT,
 	};
 
 	*current = (t_shape){0};

@@ -4,7 +4,7 @@ typedef struct timeval t_timeval;
 
 static suseconds_t	usec(t_timeval* t)
 {
-	return (suseconds_t)(t->tv_sec * 1000000 + t->tv_usec);
+	return (suseconds_t)(t->tv_sec * 1000 * 1000 + t->tv_usec);
 }
 
 suseconds_t			get_current_time()

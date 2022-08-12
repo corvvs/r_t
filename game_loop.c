@@ -4,6 +4,7 @@
 #include "key_action.h"
 #include <ncurses.h>
 
+// ゲームターンが終わったどうかの判定
 static int	has_over_turn(t_game *game)
 {
 	suseconds_t elapsed_time = get_current_time() - game->turn_started_at;
