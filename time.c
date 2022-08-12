@@ -1,4 +1,4 @@
-#include "time.h"
+#include <sys/time.h>
 
 typedef struct timeval t_timeval;
 

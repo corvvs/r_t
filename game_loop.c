@@ -1,4 +1,5 @@
-#include "tetris.h"
+#include "types.h"
+#include "time.h"
 #include "window.h"
 #include "key_action.h"
 #include <ncurses.h>

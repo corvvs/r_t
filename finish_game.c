@@ -1,4 +1,5 @@
-#include "tetris.h"
+#include "types.h"
+#include "shape.h"
 
 static void	display_result(t_game *game)
 {

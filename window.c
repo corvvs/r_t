@@ -1,5 +1,5 @@
 #include <ncurses.h>
-#include "window.h"
+#include "types.h"
 
 int		get_char()
 {

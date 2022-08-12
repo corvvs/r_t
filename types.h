@@ -2,10 +2,7 @@
 #define TETRIS_TYPES_H
 
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <time.h>
 #include <sys/time.h>
 
 #define R 20
@@ -25,9 +22,10 @@ typedef struct	s_shape {
 typedef struct	s_game
 {
 	t_board		board;
-	suseconds_t	turn_duration;
+	// ゲームが継続中かどうか
 	bool		game_on;
 	int			score;
+	suseconds_t	turn_duration;
 	suseconds_t	duration_decreasement;
 	suseconds_t	turn_started_at;
 }	t_game;

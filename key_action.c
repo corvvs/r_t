@@ -1,3 +1,4 @@
+#include <string.h>
 #include "types.h"
 #include "shape.h"
 

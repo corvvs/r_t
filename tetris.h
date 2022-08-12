@@ -1,9 +1,9 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
+// 外部公開用
+
 #include "types.h"
-#include "shape.h"
-#include "time.h"
 
 // ゲームパラメータの初期化
 void	init_game(t_game *game, t_shape* current);
